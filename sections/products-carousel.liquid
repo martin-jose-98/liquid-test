@@ -5,7 +5,7 @@
       {{ section.settings.title | default: 'Best Sellers' }}
     </h2>
     {% if section.settings.link_title != blank %}
-      <a href="{{ section.settings.link_url }}" class="hidden md:flex items-center gap-2 text-sm text-[#5C553A] hover:opacity-70 transition-opacity font-poppins font-semibold">
+      <a href="{{ section.settings.link_url | default: '#' }}" class="hidden md:flex items-center gap-2 text-sm text-[#5C553A] hover:opacity-70 transition-opacity font-poppins font-semibold">
         {{ section.settings.link_title | default: 'Shop All Best Sellers' }}
         <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M1 6H14.3333M9.33333 11L14.3333 6L9.33333 1" stroke="#5C553A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -52,7 +52,7 @@
   {% if total > 4 %}
     <button id="show-more-btn-{{ section.id }}"
             class="md:hidden mt-6 w-full flex items-center justify-center gap-2 border border-ink rounded-full py-3 text-sm font-medium text-[#FFFFFA] transition-colors bg-[#1C1D1D] font-poppins"
-            aria-expanded="false" aria-controls="extra-products-{{ section.id }}">
+            aria-expanded="false" type="button" aria-controls="extra-products-{{ section.id }}">
       <span class="show-more-label">Show more</span>
     </button>
   {% endif %}
