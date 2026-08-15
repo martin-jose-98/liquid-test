@@ -1,25 +1,186 @@
-<div>
-  <h2> {{ section.settings.title }} </h2>
-</div>
+<section class="my-8 w-full max-w-[1400px] mx-auto px-4 md:px-8" aria-labelledby="carousel-heading-{{ section.id }}">
+
+  <div class="flex justify-center md:justify-between items-center mb-6 md:mb-9">
+    <h2 id="carousel-heading-{{ section.id }}" class="font-black text-[28px] text-center md:text-left md:text-[40px] leading-[1.2] tracking-[-0.01em] font-serif-pro">
+      {{ section.settings.title | default: 'Best Sellers' }}
+    </h2>
+    {% if section.settings.link_title != blank %}
+      <a href="{{ section.settings.link_url }}" class="hidden md:flex items-center gap-2 text-sm text-[#5C553A] hover:opacity-70 transition-opacity font-poppins font-semibold">
+        {{ section.settings.link_title | default: 'Shop All Best Sellers' }}
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M1 6H14.3333M9.33333 11L14.3333 6L9.33333 1" stroke="#5C553A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="relative">
+    <ul id="product-track-{{ section.id }}"
+        class="list-none p-0 m-0 grid grid-cols-2 gap-4
+        md:flex md:overflow-x-auto md:scroll-smooth md:snap-x md:snap-mandatory md:pb-2
+        md:-mr-[calc((100vw-100%)/2)] md:pr-[calc((100vw-100%)/2)]
+        md:[-ms-overflow-style:none] md:[scrollbar-width:none] md:[&::-webkit-scrollbar]:hidden">
+
+      {% assign products = section.settings.product_list %}
+      {% assign total = products.size %}
+
+      {% for item in products limit: 4 %}
+        {% render 'product-card', item: item %}
+      {% endfor %}
+
+      {% if total > 4 %}
+        <div id="extra-products-{{ section.id }}"
+             class="col-span-2 grid grid-cols-2 gap-4 overflow-hidden max-h-0
+             transition-[max-height] duration-500 ease-in-out
+             md:contents md:max-h-none md:overflow-visible">
+          {% for item in products offset: 4 %}
+            {% render 'product-card', item: item %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </ul>
+
+    <div class="hidden md:block mt-3 carousel-scrollbar-wrap">
+      <div id="scrollbar-track-{{ section.id }}" class="relative w-full h-1 bg-[#DDD6D7] rounded-full cursor-pointer">
+        <div id="scrollbar-thumb-{{ section.id }}"
+             class="absolute top-1/2 -translate-y-1/2 left-0 bg-[#231F20] rounded-full cursor-grab active:cursor-grabbing"
+             style="height:4px; transition: height 150ms ease-out, left 100ms linear;"></div>
+      </div>
+    </div>
+  </div>
+
+  {% if total > 4 %}
+    <button id="show-more-btn-{{ section.id }}"
+            class="md:hidden mt-6 w-full flex items-center justify-center gap-2 border border-ink rounded-full py-3 text-sm font-medium text-[#FFFFFA] transition-colors bg-[#1C1D1D] font-poppins"
+            aria-expanded="false" aria-controls="extra-products-{{ section.id }}">
+      <span class="show-more-label">Show more</span>
+    </button>
+  {% endif %}
+
+</section>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600&family=Source+Serif+Pro:wght@400;600;900&display=swap');
+
+  .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+  .font-poppins { font-family: 'Poppins', sans-serif; }
+  .font-serif-pro { font-family: 'Source Serif Pro', serif; }
+</style>
+
+<script>
+  (function () {
+    const sectionId = {{ section.id | json }};
+    const track = document.getElementById('product-track-' + sectionId);
+    if (!track) return;
+
+    // --- Show more (mobile) ---
+    const showMoreBtn = document.getElementById('show-more-btn-' + sectionId);
+    const extraProducts = document.getElementById('extra-products-' + sectionId);
+    let expanded = false;
+
+    if (showMoreBtn && extraProducts) {
+      const label = showMoreBtn.querySelector('.show-more-label');
+
+      showMoreBtn.addEventListener('click', () => {
+        expanded = !expanded;
+        extraProducts.style.maxHeight = expanded ? extraProducts.scrollHeight + 'px' : '0px';
+        label.textContent = expanded ? 'Show less' : 'Show more';
+        showMoreBtn.setAttribute('aria-expanded', String(expanded));
+      });
+
+      window.addEventListener('resize', () => {
+        if (expanded) extraProducts.style.maxHeight = extraProducts.scrollHeight + 'px';
+      });
+    }
+
+    // --- Custom scrollbar (desktop) ---
+    const scrollTrack = document.getElementById('scrollbar-track-' + sectionId);
+    const scrollThumb = document.getElementById('scrollbar-thumb-' + sectionId);
+    if (!scrollTrack || !scrollThumb) return;
+
+    let isDragging = false, startX = 0, startScrollLeft = 0;
+
+    function updateThumb() {
+      const scrollableWidth = track.scrollWidth - track.clientWidth;
+      const trackWidth = scrollTrack.clientWidth;
+      const thumbWidthRatio = track.clientWidth / track.scrollWidth;
+      const thumbWidth = Math.max(trackWidth * thumbWidthRatio, 24);
+      scrollThumb.style.width = thumbWidth + 'px';
+
+      const scrollRatio = scrollableWidth > 0 ? track.scrollLeft / scrollableWidth : 0;
+      scrollThumb.style.left = (scrollRatio * (trackWidth - thumbWidth)) + 'px';
+      scrollTrack.closest('.carousel-scrollbar-wrap').style.display = scrollableWidth <= 0 ? 'none' : 'block';
+    }
+
+    track.addEventListener('scroll', updateThumb);
+    window.addEventListener('resize', updateThumb);
+    window.addEventListener('load', updateThumb);
+    updateThumb();
+
+    function grow() { scrollThumb.style.height = '6px'; }
+    function shrink() { if (!isDragging) scrollThumb.style.height = '4px'; }
+
+    scrollThumb.addEventListener('mouseenter', grow);
+    scrollThumb.addEventListener('mouseleave', shrink);
+    scrollThumb.addEventListener('touchstart', grow, { passive: true });
+
+    function startDrag(clientX) {
+      isDragging = true;
+      startX = clientX;
+      startScrollLeft = track.scrollLeft;
+      grow();
+      document.body.style.userSelect = 'none';
+    }
+
+    function onDrag(clientX) {
+      if (!isDragging) return;
+      const scrollableWidth = track.scrollWidth - track.clientWidth;
+      const trackWidth = scrollTrack.clientWidth;
+      const thumbWidth = scrollThumb.offsetWidth;
+      const scrollDelta = ((clientX - startX) / (trackWidth - thumbWidth)) * scrollableWidth;
+      track.scrollLeft = startScrollLeft + scrollDelta;
+    }
+
+    function endDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      shrink();
+      document.body.style.userSelect = '';
+    }
+
+    scrollThumb.addEventListener('mousedown', (e) => startDrag(e.clientX));
+    scrollThumb.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX), { passive: true });
+    window.addEventListener('mousemove', (e) => onDrag(e.clientX));
+    window.addEventListener('touchmove', (e) => onDrag(e.touches[0].clientX), { passive: true });
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+
+    scrollTrack.addEventListener('mousedown', (e) => {
+      if (e.target === scrollThumb) return;
+      const rect = scrollTrack.getBoundingClientRect();
+      const clickRatio = (e.clientX - rect.left) / rect.width;
+      const scrollableWidth = track.scrollWidth - track.clientWidth;
+      track.scrollLeft = clickRatio * scrollableWidth;
+    });
+  })();
+</script>
 
 {% schema %}
-  {
-    "name": "Products Carousel",
-    "class": "products-carousel",
-    "tag": "section",
-    "settings": [
-      {
-        "type": "text",
-        "id": "title",
-        "label": "Title",
-        "default": "Best Sellers",
-      },
-    ],
-    "presets": [
-      {
-        "name": "Products Carousel"
-      }
-    ]
-  }
+{
+  "name": "Products Carousel",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "Best Sellers" },
+    { "type": "text", "id": "link_title", "label": "Link label", "default": "Shop All Best Sellers" },
+    { "type": "url", "id": "link_url", "label": "Link URL" },
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Products"
+    }
+  ],
+  "presets": [
+    { "name": "Products Carousel" }
+  ]
+}
 {% endschema %}
 

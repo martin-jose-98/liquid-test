@@ -9,12 +9,34 @@
  */
 {
   "sections": {
+    "products_carousel_Ert3xP": {
+      "type": "products-carousel",
+      "name": "Products Carousel",
+      "settings": {
+        "title": "Best Sellers",
+        "link_title": "Shop All Best Sellers",
+        "link_url": "",
+        "product_list": [
+          "100-linen-striped-shirt",
+          "faux-suede-overshirt",
+          "lightweight-linen-cotton-tank-top",
+          "technical-parka-with-removable-vest",
+          "technical-textured-t-shirt",
+          "washed-plaid-shirt",
+          "contrast-collar-polo-sweatshirt",
+          "manteco®-origins-water-repellent-trench-coat",
+          "relaxed-fit-long-trench-coat",
+          "vertical-textured-polo"
+        ]
+      }
+    },
     "main": {
       "type": "hello-world",
       "settings": {}
     }
   },
   "order": [
+    "products_carousel_Ert3xP",
     "main"
   ]
 }
