@@ -1,0 +1,25 @@
+<div>
+  <h2> {{ section.settings.title }} </h2>
+</div>
+
+{% schema %}
+  {
+    "name": "Products Carousel",
+    "class": "products-carousel",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "Best Sellers",
+      },
+    ],
+    "presets": [
+      {
+        "name": "Products Carousel"
+      }
+    ]
+  }
+{% endschema %}
+
