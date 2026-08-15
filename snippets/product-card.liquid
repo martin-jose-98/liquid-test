@@ -1,5 +1,13 @@
-<li class="flex-none flex flex-col w-full md:w-[355px] snap-start group">
+<li class="flex-none flex flex-col w-full md:w-[355px] snap-start group relative">
   <a href="{{ item.url }}" class="block">
+    <div class="font-bebas bg-white border border-black rounded-full text-black text-[10px] px-[8px] py-[4px] inline-block w-fit absolute left-[16px] top-[12px] leading-none z-10">
+      Best Seller
+    </div>
+    {% if item.tags contains "discount-15" %}
+      <div class="font-bebas bg-[#5C7962] border border-black rounded-full text-white text-[10px] px-[8px] py-[4px] inline-block w-fit absolute right-[16px] top-[12px] leading-none z-10">
+        SAVE 15%
+      </div>
+    {% endif %}
     <div class="relative aspect-square overflow-hidden bg-stone-100 rounded-[10px]">
       {{ item.featured_image | image_url: width: 3200 | image_tag:
         loading: 'lazy',
